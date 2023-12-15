@@ -1,0 +1,164 @@
+아두이노 B에서 주제 게시 :$aws/things/ArduinoB/shadow/update
+
+페이로드 예시) -> DB에서 잘 받아옴.
+{
+     "state": {
+         "reported": {
+             "name" :  "A",
+             "ratio" : "85",
+             "uid": "14 F7 65 3B",
+             "uid_id" : "A" //쓰레기통의 태깅 정보가 A꺼야
+         }
+     }
+ }
+
+"uid": "b9 c4 d3 56",
+
+
+문제점 : trash A인지 B인지 모름.
+주제 구독 : $aws/things/ArduinoB/shadow/update //아두이노에서 전송할 때 주제 이름
+$aws/things/ArduinoB/shadow/update/documents  //람다 함수 호출할 때 입력 
+checkRFID //람다에서 Publish해주는 주제 이름 => 'true' 또는 'false' 값을 넘겨준다.
+
+[해야될거]
+아두이노 코딩을 통해 checkRFID 페이로드 값을 잘 받아오는지 테스트
+documents 주제가 들어왔을 때 2가지 의 람다 함수를 호출함 -> 하나로 합쳐버리기 -> 람다 다시 배포 -> DB 3개 이용함
+나중에 uid값이 그대로 유지될수도 있을거같음 -> uid 태깅 안하면 ""빈 문자열 전송한다든지하는 방법 이용
+A 쓰레기통에서 온 값 -> DB -> B 쓰레기통으로 보내기 구현 -> 단순히 이것도 publish(게시)하면 될거같음.
+RFID 값을 DB에 넣는거는 수동으로 주입하자.
+규칙 쿼리문 : SELECT *, 'ArduinoB' as device FROM '$aws/things/ArduinoB/shadow/update/documents'
+
+<아두이노 구현시 유의할 점>
+1. uid 값 없으면 빈 문자열 보내는거
+2. 태깅 값도 쓰레기통 정보랑 같이 보내줘야 하는거
+3. 받을때는 json 문자열 형식을 풀어서 저장해야 하는거 -> 해당 쓰레기통 모터 작동
+
+{
+  "previous": {
+    "state": {
+      "reported": {
+        "uid" : "14 F7 65 3B",
+        "name" : "A",
+        "ratio" : "85",
+        "uid_id" : "A"
+      }
+    },
+    "metadata": {
+      "reported": {
+        "uid": {
+          "timestamp": 1575167548
+        },
+        "name" : {
+          "timestamp": 1575167548
+        },
+        "ratio" : {
+          "timestamp": 1575167548
+        },
+        "uid_id" : {
+          "timestamp": 1575167548
+        }
+      }
+    },
+    "version": 4447
+  },
+  "current": {
+    "state": {
+      "reported": {
+        "uid" : "14 F7 65 3B",
+        "name" : "A",
+        "ratio" : "82",
+        "uid_id" : "B"
+      }
+    },
+    "metadata": {
+      "reported": {
+        "uid": {
+          "timestamp": 1575178081
+        },
+        "name" : {
+          "timestamp": 1575178081
+        },
+        "ratio" : {
+          "timestamp": 1575178081
+        },
+        "uid_id" : {
+          "timestamp": 1575178081
+        }
+      }
+    },
+    "version": 4448
+  },
+  "timestamp": 1575178081,
+  "device":"ArduinoB"
+}
+
+=====================================================================
+** 구독 주제
+1. checkRFID - 
+isChecked : True or False 값
+info : uid 태깅 쓰레기통 이름 A or B
+2.  Publish_To_A -> 쓰레기통 비율값
+3.  Publish_To_B -> 쓰레기통 비율값 
+
+
+=====================================================================
+**trashCanA 로그
+https://z7oyy1oz62.execute-api.ap-northeast-2.amazonaws.com/trashCan/trashCanA/log?from=2023-11-05%2013:26:00&to=2023-12-05%2013:27:00
+**trashCanB 로그
+https://z7oyy1oz62.execute-api.ap-northeast-2.amazonaws.com/trashCan/trashCanB/log?from=2023-11-05%2013:26:00&to=2023-12-05%2013:27:00
+** 디바이스 최신 상태 조회
+https://z7oyy1oz62.execute-api.ap-northeast-2.amazonaws.com/trashCan/ArduinoB
+====================================================================
+[중앙 -> AWS 보낼 때] AWS 가는거 
+{
+     "state": {
+         "reported": {
+             "name" : "B",
+             "ratio" : "85",
+             "uid": "14 F7 65 3B",
+             "uid_id" : "A" //쓰레기통의 태깅 정보가 A꺼야
+         }
+     }
+ }
+{
+     "state": {
+         "reported": {
+             "ratio_a" : "85",
+	     "ratio_b" : "99",
+             "uid_a": "14 F7 65 3B",
+             "uid_b" : "14 F7 65 4D" //쓰레기통의 태깅 정보가 A꺼야
+         }
+     }
+ }
+[AWS -> 중앙 받을 때] AWS 오는거
+[주제] : {내용} //json 객체 형식으로 받는다.
+[checkRFID] : true of false {"isChecked": false, "info": "A"} //A쓰레기통의 RFID 불일치
+[Publish_To_A] : 56 //A한테 56 비율값 전달해줘
+"name" : "A",
+"ratio" : "85",
+"uid": "14 F7 65 3B", 
+"uid_id" : "A" 
+[로라 통신 주의점]
+통신이 잘 안먹으면 핀부분 넣고 빼는거를 꽉 잡고 있으면 된다.
+철사가 휘어져서 잘 통신이 안되는 경우가 있으니 핀 부분을 잡고 있으면 잘된다고함.
+보낼 때 센서값 따로따로 보내는거보다 한번에 보내는게 낫다.
+보내고 받을 때 ACK나 SYNC 플래그 변수를 두어서 (1 or 0) 
+값이 왔는지 안왔는지 체크하는 코드가 있어야 함.
+
+https://haruvely.tistory.com/14 : 차트 구현
+
+[아두이노]
+strncpy(trash_name, "A", sizeof(trash_name) - 1); // trash_name에 아두이노에서 받은 값을 할당받는다
+trash_name[sizeof(trash_name) - 1] = '\0'; // null 문자를 보장합니다.
+
+strncpy(ratio, "82", sizeof(ratio) - 1);
+ratio[sizeof(ratio) - 1] = '\0'; // null 문자를 보장합니다.
+
+strncpy(uid, "14 F7 65 3C", sizeof(uid) - 1);
+uid[sizeof(uid) - 1] = '\0'; // null 문자를 보장합니다.
+
+strncpy(uid_id, "A", sizeof(uid_id) - 1);
+uid_id[sizeof(uid_id) - 1] = '\0'; // null 문자를 보장합니다.
+
+B9 C4 D3 56
+A9 1A 74 48
