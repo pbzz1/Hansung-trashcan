@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">쓰레기통 모니터링 App</string>
+    <string name="device_state">디바이스 최신 상태</string>
+    <string name="ratio">비율(%): </string>
+    <string name="change_buzzer">부저 상태(ON/OFF): </string>
+    <string name="trashA">쓰레기통 A: </string>
+    <string name="trashB">쓰레기통 B: </string>
+    <string name="primary_color">Primary color</string>
+    <string name="button">Button</string>
+    <string name="secondary_color">Secondary color</string>
+    <string name="show_devices">디바이스 목록 조회</string>
+    <string name="update_devices">쓰레기통 상태 조회</string>
+    <string name="log_devices">포화 상태 로그 조회</string>
+    <string name="warning">*쓰레기통을 선택하고 조회 버튼을 누르세요*</string>
+    <string name="show_graph">*차트 보기*</string>
+</resources>
