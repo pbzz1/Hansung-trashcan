@@ -12,16 +12,16 @@
 #define ATSerial Serial
 
 //16byte hex key
-String lora_app_key = "11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 00";
+String lora_app_key = "11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff 00"; //통신하기 위한 키 
 SNIPE SNIPE(ATSerial);
 
 unsigned long lastMillis = 0;
 unsigned long previousMillis = 0;
 const long interval = 5000;
- 
+
+//중앙 아두이노는 아래 3가지 주제를 구독합니다. (AWS 람다 함수가 해당 주제로 메시지 게시하면 중앙이 받는다.)
 #define AWS_IOT_PUBLISH_TOPIC "$aws/things/ArduinoB/shadow/update"
 #define CHECK_RFID "checkRFID"
-#define PUBLISH_A "Publish_To_A"
 #define PUBLISH_B "Publish_To_B"
 
 WiFiClientSecure net;
@@ -35,17 +35,15 @@ PubSubClient client(net);
 time_t now;
 time_t nowish = 1510592825;
 
-String trash_name;
+//쓰레기통 A로부터 수신된 쓰레기통 이름, 비율값, RFID값을 받는 변수 (String 형)
+String trash_name; 
 String ratio;
 String uid;
 String uid_id;
 
-String value;
-String isCheckedValue;
-String infoValue; 
-String isCheckedValueStr;
-
-
+//AWS가 게시한 주제에 대한 메시지를 받는 변수
+String value; //쓰레기통 비율값을 받아서 저장
+String isCheckedValue; //RFID 값이 true or false 여부 받아서 저장 
 
 void NTPConnect(void)
 {
@@ -65,42 +63,45 @@ void NTPConnect(void)
   Serial.print(asctime(&timeinfo));
 }
 
+//AWS로부터 중앙이 구독하는 주제에 대한 메시지를 받았을 때 호출되는 콜백함수
 void messageReceived(char *topic, byte *payload, unsigned int length) {
   Serial.print("Received [");
-  Serial.print(topic);
+  Serial.print(topic); //주제 이름 프린트
   Serial.print("]: ");
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) { //받은 값 문자 하나씩 프린트(페이로드 값)
     Serial.print((char)payload[i]);
   }
   Serial.println();
 
   // 변환할 JSON 문자열
   String jsonStr;
-  for (unsigned int i = 0; i < length; i++) {
-    jsonStr += (char)payload[i];
+  for (unsigned int i = 0; i < length; i++) { 
+    jsonStr += (char)payload[i]; //jsonStr변수에 해당 주제에 대해 받은 페이로드 값을 저장합니다.
   }
-  
+
+ //구독 주제 이름이 Publish_To_B 라면 (비율값이 도착한거)
   if (String(topic) == "Publish_To_B") {
-    // 주제가 "Publish_To_A"인 경우, payload를 정수로 변환
-    value = jsonStr;
+    value = jsonStr; //value값에 비율값 할당(문자열이겠지)
     Serial.print("Value: ");
     Serial.println(value);
   } 
-  
+
+   //구독 주제 이름이 checkRFID 라면(true 또는 false 값이 도착한거)
   else if (String(topic) == "checkRFID") {
-    isCheckedValue = jsonStr;
+    isCheckedValue = jsonStr; //isCheckedValue변수에 true or false 문자열 할당
     Serial.print("isChecked: ");
     Serial.println(isCheckedValue);
   }
    // 메시지 처리 후 jsonStr 초기화
-  jsonStr = "";
+  jsonStr = ""; //jsonStr에 계속 덮어씌워지는거 방지하기 위함함
 }
 
+//AWS에 연결하기 위한 함수
 void connectAWS()
 {
   delay(3000);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD); //아이디와 패스워드 통해 연결 
  
   Serial.println(String("Attempting to connect to SSID: ") + String(WIFI_SSID));
  
@@ -115,7 +116,7 @@ void connectAWS()
   net.setTrustAnchors(&cert);
   net.setClientRSACert(&client_crt, &key);
  
-  client.setServer(MQTT_HOST, 8883);
+  client.setServer(MQTT_HOST, 8883); //MQTT 프로토콜 세팅 
   client.setCallback(messageReceived);
  
  
