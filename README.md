@@ -1,6 +1,6 @@
 # Hansung-trashcan
 ### 프로젝트 주제 : [환경 미화원분들을 위한 쓰레기통 모니터링 시스템]
-### 시연 영상 링크 https://youtu.be/ATXAwupM_98
+### 시연 영상 링크 https://youtu.be/oYp2sEuCdz0
 #### 각 폴더별 README 파일에 기술 설명이 기재되어 있습니다.
 ### 1. 프로젝트 개요
 <image src="https://github.com/pbzz1/Hansung-trashcan/assets/123307856/81f01824-16c0-4dc4-808d-6763a7152926" weight="600" height="400"></image>
