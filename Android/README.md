@@ -28,6 +28,8 @@
       * 시간 선택시에도 마찬가지로 현재 시간으로 기본적으로 세팅됨
       * 쓰레기통 A, B의 로그를 각각 조회할 수 있도록 화면을 넘겨줄 때, 인텐트로 url을 넘겨주고 사용자 선택에 따라 /trashCanA or /trashCanB가 URL에 추가됨
       * URL이 계속해서 쌓이는 것을 방지하기 위해 String tempStr에 이전 url 저장, 다시 복귀하는 식으로 구성함 (LogActivity.java 코드)
+      * 로그 조회시에는 LogDeviceLambda 함수를 이용하여 배포한 API URL 을 버튼 클릭시 넘겨주어서 http request를 요청하는 방식
+      * url 예시 : https://z7oyy1oz62.execute-api.ap-northeast-2.amazonaws.com/trashCan/trashCanA/log?from=2023-12-05%2013:26:00&to=2023-12-12%2013:27:00
 ### 4. 앱 시연 영상
 #### https://youtu.be/UvjXEWUmIRI 
 ### 5. 앱 화면 구성
