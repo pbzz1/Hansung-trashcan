@@ -18,7 +18,7 @@
 * ### AWS SNS : 주제 및 구독 생성을 통해 쓰레기통 비율이 50, 70, 100%일 때 이메일을 전송
 * ### AWS DynamoDB : 미화원들의 RFID 태그값들, 쓰레기통 A의 ratio 값들을 각각 Cleaner, trashCanA 테이블에 저장
 * ### AWS API Gateway : 클라이언트(앱)에서 자유롭게 포화 상태를 조회할 수 있도록 LogDeviceLambda 함수를 GET 메서드로 통합 요청하는 API 생성 및 배포
-* ### Android Studio : 사용자(미화원)가 앱을 통해 포화 상태를 조회하고 차트를 볼 수 있는 인터페이스 역할
+* ### Android Studio : 사용자(미화원)가 포화 상태를 조회하고 차트를 볼 수 있는 인터페이스 역할
   * #### 아래 사진은 앱 화면입니다.
 <image src="https://github.com/pbzz1/Hansung-trashcan/assets/123307856/18da7c95-70b2-47f2-8e69-d14886a51c05"></image>
 <image src="https://github.com/pbzz1/Hansung-trashcan/assets/123307856/b33901fe-5563-46ac-adb8-8ba2ca2cc8ef"></image>
